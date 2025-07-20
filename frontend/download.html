@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Crocz - Download</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 0 20px rgba(0, 255, 150, 0.2);
+        }
+
+        input,
+        button {
+            width: 100%;
+            margin-top: 1rem;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        button {
+            background: #22c55e;
+            color: black;
+            cursor: pointer;
+        }
+
+        .result {
+            margin-top: 1rem;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Download Your File 🔓</h1>
+    <div class="card">
+        <form id="downloadForm">
+            <label>Enter Share Code</label>
+            <input type="text" name="code" id="codeInput" required />
+
+            <label>Enter Passphrase</label>
+            <input type="text" name="passphrase" required />
+
+            <button type="submit">Download File</button>
+        </form>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const presetCode = urlParams.get("code");
+        if (presetCode) {
+            document.getElementById("codeInput").value = presetCode;
+        }
+
+        const form = document.getElementById("downloadForm");
+        const resultDiv = document.getElementById("result");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const code = form.code.value.trim();
+            const passphrase = form.passphrase.value.trim();
+
+            const downloadUrl = `/download/${code}?passphrase=${encodeURIComponent(passphrase)}`;
+
+            try {
+                resultDiv.innerText = "⏬ Downloading...";
+                const res = await fetch(downloadUrl);
+
+                if (!res.ok) {
+                    const err = await res.text();
+                    resultDiv.innerText = `❌ ${err}`;
+                    return;
+                }
+
+                const blob = await res.blob();
+                const contentDisposition = res.headers.get("Content-Disposition");
+                const filename = contentDisposition?.split("filename=")[1]?.replaceAll('"', '') || "file";
+
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                link.click();
+
+                resultDiv.innerText = "✅ Download complete.";
+            } catch (err) {
+                resultDiv.innerText = "❌ Failed to download file.";
+            }
+        });
+    </script>
+</body>
+
+</html>
