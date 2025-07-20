@@ -5,7 +5,10 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/olahol/melody"
 )
+
+var m = melody.New()
 
 func DownloadHandler(c *fiber.Ctx) error {
 	code := c.Params("code")
@@ -16,12 +19,13 @@ func DownloadHandler(c *fiber.Ctx) error {
 		return c.Status(400).SendString("Code and passphrase are required")
 	}
 
-	// Lookup the file metadata
-	meta, ok := FileStore[code]
-	if !ok {
-		return c.Status(404).SendString("Invalid code")
+	// Lookup the file metadata in cache
+	value, err := FileCache.Get(code)
+	if err != nil {
+		return c.Status(404).SendString("Invalid or expired code")
 	}
 
+	meta := value.(FileMeta)
 	if passphrase != meta.Passphrase {
 		return c.Status(403).SendString("Incorrect passphrase")
 	}
@@ -37,10 +41,14 @@ func DownloadHandler(c *fiber.Ctx) error {
 	c.Set("Content-Type", "application/octet-stream")
 	c.Set("Content-Disposition", "attachment; filename=\""+meta.Filename+"\"")
 
+	m.BroadcastFilter([]byte("downloaded:"+code), func(q *melody.Session) bool {
+		return q.Request.URL.Path == "/ws/"+code
+	})
+
 	// Optional: delete after download
 	defer func() {
+		FileCache.Remove(code)
 		os.Remove(meta.Path)
-		delete(FileStore, code)
 	}()
 
 	return c.SendStream(stream)
