@@ -44,6 +44,12 @@ func UploadHandler(c *fiber.Ctx) error {
 	code, _ := gonanoid.New(6)
 	log.Printf("Generated code: %s", code)
 
+	// Ensure tmp directory exists
+	if err := os.MkdirAll("tmp", 0755); err != nil {
+		log.Printf("Error creating tmp directory: %v", err)
+		return c.Status(500).SendString("Server error")
+	}
+
 	// Save temporarily before encryption
 	tempPath := filepath.Join("tmp", code+"_"+fileHeader.Filename)
 	err = c.SaveFile(fileHeader, tempPath)
