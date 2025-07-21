@@ -74,31 +74,50 @@
             e.preventDefault();
 
             const formData = new FormData(form);
-            const res = await fetch("/upload", {
-                method: "POST",
-                body: formData
-            });
 
-            if (res.ok) {
-                const data = await res.json();
-                resultDiv.innerHTML = `
-          ✅ Upload Successful!<br>
-          Share this code with the recipient:<br>
-          <strong>${data.code}</strong><br><br>
-          Download link: <a href="/frontend/download.html?code=${data.code}" target="_blank">Download Page</a>
-        `;
-                form.reset();
+            try {
+                const res = await fetch("/upload", {
+                    method: "POST",
+                    body: formData
+                });
 
-                const ws = new WebSocket(`ws://${window.location.host}/ws/${data.code}`);
-                ws.onmessage = (event) => {
-                    if (event.data === "downloaded:" + data.code) {
-                        resultDiv.innerHTML += `<br>📥 File downloaded successfully!`;
-                        ws.close();
+                if (res.ok) {
+                    const data = await res.json();
+                    resultDiv.innerHTML = `
+              ✅ Upload Successful!<br>
+              Share this code with the recipient:<br>
+              <strong>${data.code}</strong><br><br>
+              Download link: <a href="/frontend/download.html?code=${data.code}" target="_blank">Download Page</a>
+            `;
+                    form.reset();
+
+                    try {
+                        const ws = new WebSocket(`ws://${window.location.host}/ws/${data.code}`);
+                        ws.onopen = () => {
+                            console.log("WebSocket connected");
+                        };
+                        ws.onmessage = (event) => {
+                            if (event.data === "downloaded:" + data.code) {
+                                resultDiv.innerHTML += `<br>📥 File downloaded successfully!`;
+                                ws.close();
+                            }
+                        };
+                        ws.onerror = (error) => {
+                            console.log("WebSocket error:", error);
+                        };
+                        ws.onclose = () => {
+                            console.log("WebSocket closed");
+                        };
+                    } catch (wsError) {
+                        console.log("WebSocket connection failed:", wsError);
                     }
-                };
-            } else {
-                const errorText = await res.text();
-                resultDiv.innerHTML = `❌ ${errorText}`;
+                } else {
+                    const errorText = await res.text();
+                    resultDiv.innerHTML = `❌ ${errorText}`;
+                }
+            } catch (error) {
+                console.error("Upload failed:", error);
+                resultDiv.innerHTML = `❌ Upload failed: ${error.message}`;
             }
         });
     </script>
