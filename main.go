@@ -19,6 +19,9 @@ func main() {
 
 	app.Post("/upload", handlers.UploadHandler)
 	app.Get("/download/:code", handlers.DownloadHandler)
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.Redirect("/frontend/upload.html")
+	})
 	app.Static("/frontend", "./frontend")
 
 	log.Println("Server starting on :3000")

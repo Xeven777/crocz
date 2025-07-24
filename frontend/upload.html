@@ -7,38 +7,320 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Crocz - Upload</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --color-dark: #283a2b;
+            --color-medium: #5E936C;
+            --color-light: #93DA97;
+            --color-lightest: #E8FFD7;
+        }
+
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .bagel {
+            font-family: 'Bagel Fat One', cursive;
+        }
+
+        .btn-primary {
+            background: var(--color-light);
+            box-shadow: 0 10px 25px rgba(147, 218, 151, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 15px 35px rgba(147, 218, 151, 0.4);
+            transform: scale(1.01);
+        }
+
+        .btn-primary:active {
+            box-shadow: 0 15px 35px var(--color-light);
+            transform: scale(0.98);
+        }
+
+        .input-field {
+            background: rgba(94, 147, 108, 0.15);
+            border: 1px solid rgba(147, 218, 151, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: var(--color-light);
+            box-shadow: 0 0 0 3px rgba(147, 218, 151, 0.2);
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            33% {
+                transform: translateY(-30px) rotate(120deg);
+            }
+
+            66% {
+                transform: translateY(30px) rotate(240deg);
+            }
+        }
+
+        .upload-icon {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+        }
+    </style>
 </head>
 
 <body
-    class="bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-800 min-h-screen flex flex-col items-center justify-center text-slate-100">
-    <h1 class="text-4xl font-extrabold mb-8 tracking-tight text-emerald-400 drop-shadow-lg">Crocz <span
-            class="inline-block animate-bounce">🔐</span></h1>
-    <div class="bg-slate-800/80 backdrop-blur-lg shadow-2xl rounded-2xl p-8 w-full max-w-md flex flex-col items-center">
-        <form id="uploadForm" class="w-full flex flex-col gap-6">
-            <div>
-                <label class="block text-lg font-semibold mb-2 text-emerald-300">Choose a file</label>
-                <input title="Choose a file" type="file" name="file" required
-                    class="file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500 file:text-slate-900 hover:file:bg-emerald-400 transition-all duration-200 bg-slate-700/60 text-slate-100 rounded-lg w-full" />
-            </div>
-            <div>
-                <label class="block text-lg font-semibold mb-2 text-emerald-300">Enter a passphrase</label>
-                <input type="text" name="passphrase" placeholder="e.g. mySecret123" required
-                    class="bg-slate-700/60 text-slate-100 rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400" />
-            </div>
-            <button type="submit"
-                class="bg-gradient-to-r from-emerald-400 to-emerald-600 text-slate-900 font-bold py-3 rounded-xl shadow-lg hover:scale-105 hover:from-emerald-500 hover:to-emerald-700 transition-all duration-200">Upload
-                & Encrypt</button>
-        </form>
-        <div class="result mt-6 text-center text-base font-medium" id="result"></div>
+    class="bg-[var(--color-dark)] min-h-screen flex flex-col items-center mt-24 text-[var(--color-lightest)] relative">
+
+    <div class="relative z-10 w-full max-w-6xl px-6">
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <h1 class="bagel text-3xl md:text-6xl text-[var(--color-lightest)]">
+                CROCZ
+            </h1>
+            <p class="text-[var(--color-medium)] text-base md:text-lg font-light mt-4">
+                Crocz makes it easy to quickly share your files without limitations
+            </p>
+        </div>
+
+        <!-- Main Upload Interface -->
+        <div class="rounded-3xl p-8 shadow-lg bg-[var(--color-medium)]/10">
+            <form id="uploadForm" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+                <!-- Left Side - File Drop Zone -->
+                <div class="space-y-6">
+                    <div id="fileDropZone"
+                        class="file-drop-zone border-2 border-dashed border-[var(--color-light)]/50 hover:border-[var(--color-light)] rounded-2xl p-8 h-80 flex flex-col items-center justify-center cursor-pointer relative overflow-hidden bg-[var(--color-medium)]/10 hover:bg-[var(--color-medium)]/20 transition-all">
+                        <div class="upload-icon text-[var(--color-light)] mb-4">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7 10L12 5L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                <path
+                                    d="M20 16V20C20 20.5304 19.7893 21.0391 19.4142 21.4142C19.0391 21.7893 18.5304 22 18 22H6C5.46957 22 4.96086 21.7893 4.58579 21.4142C4.21071 21.0391 4 20.5304 4 20V16"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-[var(--color-light)] mb-2 bagel tracking-wide">Add files
+                        </h3>
+                        <p class="text-[var(--color-medium)] text-center mb-4">Drop files here or click to browse</p>
+                        <input type="file" name="file" required
+                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                    </div>
+
+                    <!-- File List -->
+                    <div id="fileList" class="space-y-3"></div>
+
+                    <div class="text-center">
+                        <span class="text-[var(--color-medium)] text-sm"><span id="fileSize">0</span> / 100 MB</span>
+                    </div>
+                </div>
+
+                <!-- Right Side - Settings -->
+                <div class="space-y-6">
+                    <!-- Send Options -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-[var(--color-light)] mb-4 bagel tracking-wider">Send by
+                        </h3>
+                        <div class="flex gap-3">
+                            <button type="button"
+                                class="flex-1 py-3 px-4 rounded-xl bg-[var(--color-light)]/20 text-[var(--color-light)] border border-[var(--color-light)]/30 font-medium transition-all hover:bg-[var(--color-light)]/30">
+                                🔗 Link
+                            </button>
+                            <button type="button"
+                                class="flex-1 py-3 px-4 rounded-xl bg-[var(--color-medium)]/20 text-[var(--color-medium)] border border-[var(--color-medium)]/30 font-medium transition-all hover:bg-[var(--color-medium)]/40">
+                                📧 E-mail
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Passphrase -->
+                    <div>
+                        <label
+                            class="block text-lg font-semibold mb-3 text-[var(--color-light)] bagel tracking-wider">Passphrase</label>
+                        <input type="text" name="passphrase" placeholder="Enter security passphrase" required
+                            class="input-field w-full px-4 py-3 rounded-xl text-[var(--color-lightest)] placeholder-[var(--color-medium)] focus:outline-none font-medium" />
+                    </div>
+
+                    <!-- Send Button -->
+                    <button type="submit"
+                        class="btn-primary w-full py-4 px-6 rounded-xl text-[var(--color-dark)] font-black text-lg transition-all duration-300">
+                        🚀 Send now
+                    </button>
+
+                    <!-- Copy Download Link -->
+                    <div id="downloadLinkSection" class="hidden">
+                        <label class="block text-sm font-medium mb-2 text-[var(--color-light)]">Download Link</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="downloadLink" readonly
+                                class="input-field flex-1 px-4 py-3 rounded-xl text-[var(--color-lightest)] text-sm font-mono focus:outline-none" />
+                            <button type="button" id="copyLinkBtn"
+                                class="px-4 py-3 bg-[var(--color-light)] hover:bg-[var(--color-medium)] rounded-xl text-[var(--color-dark)] font-medium transition-all">
+                                📋 Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Result Display -->
+            <div class="result mt-8 text-center" id="result"></div>
+        </div>
     </div>
+
     <script>
         const form = document.getElementById("uploadForm");
         const resultDiv = document.getElementById("result");
+        const fileDropZone = document.getElementById("fileDropZone");
+        const fileList = document.getElementById("fileList");
+        const fileSizeSpan = document.getElementById("fileSize");
+        const downloadLinkSection = document.getElementById("downloadLinkSection");
+        const downloadLinkInput = document.getElementById("downloadLink");
+        const copyLinkBtn = document.getElementById("copyLinkBtn");
+        const fileInput = form.querySelector('input[type="file"]');
 
+        let selectedFiles = [];
+
+        // File drop functionality
+        fileDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileDropZone.classList.add('dragover');
+        });
+
+        fileDropZone.addEventListener('dragleave', () => {
+            fileDropZone.classList.remove('dragover');
+        });
+
+        fileDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileDropZone.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files);
+            handleFiles(files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            handleFiles(files);
+        });
+
+        function handleFiles(files) {
+            selectedFiles = files;
+            displayFiles();
+            updateFileSize();
+        }
+
+        function displayFiles() {
+            fileList.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item rounded-xl p-4 flex items-center justify-between';
+
+                const fileIcon = getFileIcon(file.type);
+                const fileSize = formatFileSize(file.size);
+
+                fileItem.innerHTML = `
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">${fileIcon}</span>
+        <div>
+          <div class="font-medium text-[var(--color-lightest)]">${file.name}</div>
+          <div class="text-sm text-[var(--color-medium)]">${fileSize}</div>
+        </div>
+      </div>
+      <button type="button" onclick="removeFile(${index})" class="text-[var(--color-medium)] hover:text-[var(--color-light)] transition-colors">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    `;
+
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            displayFiles();
+            updateFileSize();
+        }
+
+        function getFileIcon(mimeType) {
+            if (mimeType.startsWith('image/')) return '🖼️';
+            if (mimeType.startsWith('video/')) return '🎥';
+            if (mimeType.startsWith('audio/')) return '🎵';
+            if (mimeType.includes('pdf')) return '📄';
+            if (mimeType.includes('zip') || mimeType.includes('rar')) return '📦';
+            if (mimeType.includes('document') || mimeType.includes('word')) return '📝';
+            if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📊';
+            return '📁';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function updateFileSize() {
+            const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
+            fileSizeSpan.textContent = formatFileSize(totalSize);
+        }
+
+        // Copy link functionality
+        copyLinkBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(downloadLinkInput.value);
+                copyLinkBtn.innerHTML = '✅ Copied!';
+                setTimeout(() => {
+                    copyLinkBtn.innerHTML = '📋 Copy';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+        });
+
+        // Form submission
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
 
-            const formData = new FormData(form);
+            if (selectedFiles.length === 0) {
+                resultDiv.innerHTML = `<span class='text-[var(--color-light)] font-bold'>❌ Please select a file first</span>`;
+                return;
+            }
+
+            const formData = new FormData();
+            selectedFiles.forEach(file => {
+                formData.append('file', file);
+            });
+            formData.append('passphrase', form.passphrase.value);
 
             try {
                 const res = await fetch("/upload", {
@@ -48,22 +330,34 @@
 
                 if (res.ok) {
                     const data = await res.json();
+                    const downloadUrl = `/frontend/download.html?code=${data.code}`;
+
+                    downloadLinkInput.value = window.location.origin + downloadUrl;
+                    downloadLinkSection.classList.remove('hidden');
+
                     resultDiv.innerHTML = `
-                        <div class='bg-emerald-900/80 rounded-xl p-4 shadow-lg border border-emerald-500'>
-                            <span class='text-emerald-400 text-xl font-bold'>✅ Upload Successful!</span><br>
-                            <span class='text-slate-200'>Share this code with the recipient:</span><br>
-                            <strong class='text-2xl text-emerald-300 tracking-widest'>${data.code}</strong><br><br>
-                            <a href="/frontend/download.html?code=${data.code}" target="_blank" class="inline-block mt-2 px-4 py-2 bg-emerald-500 text-slate-900 font-semibold rounded-lg shadow hover:bg-emerald-400 transition">Download Page</a>
-                        </div>
-                    `;
+        <div class='bg-[var(--color-light)]/20 border border-[var(--color-light)]/30 rounded-2xl p-6 shadow-lg'>
+          <div class='text-[var(--color-light)] text-2xl font-bold mb-2'>✅ Upload Successful!</div>
+          <div class='text-[var(--color-lightest)] mb-4'>Share this code with the recipient:</div>
+          <div class='text-3xl text-[var(--color-light)] font-mono tracking-widest mb-4 bg-[var(--color-dark)]/50 rounded-xl py-3 px-4'>${data.code}</div>
+          <a href="${downloadUrl}" target="_blank" class="inline-block px-6 py-3 bg-[var(--color-light)] hover:bg-[var(--color-medium)] text-[var(--color-dark)] font-semibold rounded-xl shadow-lg transition-all duration-300 hover:scale-105">
+            🔗 Open Download Page
+          </a>
+        </div>
+      `;
+
+                    // Reset form
+                    selectedFiles = [];
+                    displayFiles();
+                    updateFileSize();
                     form.reset();
                 } else {
                     const errorText = await res.text();
-                    resultDiv.innerHTML = `<span class='text-red-400 font-bold'>❌ ${errorText}</span>`;
+                    resultDiv.innerHTML = `<span class='text-[var(--color-light)] font-bold'>❌ ${errorText}</span>`;
                 }
             } catch (error) {
                 console.error("Upload failed:", error);
-                resultDiv.innerHTML = `<span class='text-red-400 font-bold'>❌ Upload failed: ${error.message}</span>`;
+                resultDiv.innerHTML = `<span class='text-[var(--color-light)] font-bold'>❌ Upload failed: ${error.message}</span>`;
             }
         });
     </script>
