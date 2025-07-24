@@ -6,66 +6,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Crocz - Upload</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            background: #0f172a;
-            color: #f8fafc;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 2rem;
-        }
-
-        .card {
-            background: #1e293b;
-            padding: 2rem;
-            border-radius: 12px;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 0 20px rgba(0, 255, 150, 0.2);
-        }
-
-        input,
-        button {
-            width: 100%;
-            margin-top: 1rem;
-            padding: 0.8rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-
-        button {
-            background: #22c55e;
-            color: black;
-            cursor: pointer;
-        }
-
-        .result {
-            margin-top: 1rem;
-            font-size: 1rem;
-            word-break: break-word;
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 
-<body>
-    <h1>Crocz 🔐</h1>
-    <div class="card">
-        <form id="uploadForm">
-            <label>Choose a file</label>
-            <input title="Choose a file" type="file" name="file" required />
-
-            <label>Enter a passphrase</label>
-            <input type="text" name="passphrase" placeholder="e.g. mySecret123" required />
-
-            <button type="submit">Upload & Encrypt</button>
+<body
+    class="bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-800 min-h-screen flex flex-col items-center justify-center text-slate-100">
+    <h1 class="text-4xl font-extrabold mb-8 tracking-tight text-emerald-400 drop-shadow-lg">Crocz <span
+            class="inline-block animate-bounce">🔐</span></h1>
+    <div class="bg-slate-800/80 backdrop-blur-lg shadow-2xl rounded-2xl p-8 w-full max-w-md flex flex-col items-center">
+        <form id="uploadForm" class="w-full flex flex-col gap-6">
+            <div>
+                <label class="block text-lg font-semibold mb-2 text-emerald-300">Choose a file</label>
+                <input title="Choose a file" type="file" name="file" required
+                    class="file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500 file:text-slate-900 hover:file:bg-emerald-400 transition-all duration-200 bg-slate-700/60 text-slate-100 rounded-lg w-full" />
+            </div>
+            <div>
+                <label class="block text-lg font-semibold mb-2 text-emerald-300">Enter a passphrase</label>
+                <input type="text" name="passphrase" placeholder="e.g. mySecret123" required
+                    class="bg-slate-700/60 text-slate-100 rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400" />
+            </div>
+            <button type="submit"
+                class="bg-gradient-to-r from-emerald-400 to-emerald-600 text-slate-900 font-bold py-3 rounded-xl shadow-lg hover:scale-105 hover:from-emerald-500 hover:to-emerald-700 transition-all duration-200">Upload
+                & Encrypt</button>
         </form>
-
-        <div class="result" id="result"></div>
+        <div class="result mt-6 text-center text-base font-medium" id="result"></div>
     </div>
-
     <script>
         const form = document.getElementById("uploadForm");
         const resultDiv = document.getElementById("result");
@@ -84,19 +49,21 @@
                 if (res.ok) {
                     const data = await res.json();
                     resultDiv.innerHTML = `
-              ✅ Upload Successful!<br>
-              Share this code with the recipient:<br>
-              <strong>${data.code}</strong><br><br>
-              Download link: <a href="/frontend/download.html?code=${data.code}" target="_blank">Download Page</a>
-            `;
+                        <div class='bg-emerald-900/80 rounded-xl p-4 shadow-lg border border-emerald-500'>
+                            <span class='text-emerald-400 text-xl font-bold'>✅ Upload Successful!</span><br>
+                            <span class='text-slate-200'>Share this code with the recipient:</span><br>
+                            <strong class='text-2xl text-emerald-300 tracking-widest'>${data.code}</strong><br><br>
+                            <a href="/frontend/download.html?code=${data.code}" target="_blank" class="inline-block mt-2 px-4 py-2 bg-emerald-500 text-slate-900 font-semibold rounded-lg shadow hover:bg-emerald-400 transition">Download Page</a>
+                        </div>
+                    `;
                     form.reset();
                 } else {
                     const errorText = await res.text();
-                    resultDiv.innerHTML = `❌ ${errorText}`;
+                    resultDiv.innerHTML = `<span class='text-red-400 font-bold'>❌ ${errorText}</span>`;
                 }
             } catch (error) {
                 console.error("Upload failed:", error);
-                resultDiv.innerHTML = `❌ Upload failed: ${error.message}`;
+                resultDiv.innerHTML = `<span class='text-red-400 font-bold'>❌ Upload failed: ${error.message}</span>`;
             }
         });
     </script>
